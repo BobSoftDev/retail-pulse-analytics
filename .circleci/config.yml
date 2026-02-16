@@ -1,0 +1,40 @@
+version: 2.1
+jobs:
+  build_and_deploy:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Install dbt
+          command: pip install dbt-databricks
+      - run:
+          name: Setup dbt Profile
+          command: |
+            mkdir -p ~/.dbt
+            echo "databricks_profile:
+              outputs:
+                prod:
+                  type: databricks
+                  host: $DB_HOST
+                  http_path: $DB_HTTP_PATH
+                  token: $DB_TOKEN
+                  catalog: dbt_project_catalog
+                  schema: default
+                  threads: 4
+              target: prod" > ~/.dbt/profiles.yml
+      - run:
+          name: Run dbt
+          command: |
+            dbt deps
+            dbt seed
+            dbt run
+            dbt test
+
+workflows:
+  deploy_analytics:
+    jobs:
+      - build_and_deploy:
+          filters:
+            branches:
+              only: main

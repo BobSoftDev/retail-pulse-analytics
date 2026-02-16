@@ -1,0 +1,21 @@
+name: 'retail_pulse'
+version: '1.0.0'
+config-version: 2
+
+profile: 'databricks_profile'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+models:
+  retail_pulse:
+    bronze:
+      +materialized: table
+      +schema: bronze
+    silver:
+      +materialized: table
+      +schema: silver
+    gold:
+      +materialized: view
+      +schema: gold
